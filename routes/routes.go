@@ -3,18 +3,28 @@ package routes
 import (
     "github.com/gin-gonic/gin"
     "book-author-api/controllers"
+    "book-author-api/services"
 )
 
 func SetupRoutes(r *gin.Engine) {
-    r.GET("/books", controllers.GetBooks)
-    r.POST("/books", controllers.CreateBook)
-    r.GET("/books/:id", controllers.GetBook)
-    r.PUT("/books/:id", controllers.UpdateBook)
-    r.DELETE("/books/:id", controllers.DeleteBook)
+    // Create services
+    bookService := &services.BookService{}
+    authorService := &services.AuthorService{}
 
-    r.GET("/authors", controllers.GetAuthors)
-    r.POST("/authors", controllers.CreateAuthor)
-    r.GET("/authors/:id", controllers.GetAuthor)
-    r.PUT("/authors/:id", controllers.UpdateAuthor)
-    r.DELETE("/authors/:id", controllers.DeleteAuthor)
+    // Create controllers
+    bookController := &controllers.BookController{BookService: bookService}
+    authorController := &controllers.AuthorController{AuthorService: authorService}
+
+    // Define routes
+    r.GET("/books", bookController.GetBooks)
+    r.POST("/books", bookController.CreateBook)
+    r.GET("/books/:id", bookController.GetBook)
+    r.PUT("/books/:id", bookController.UpdateBook)
+    r.DELETE("/books/:id", bookController.DeleteBook)
+
+    r.GET("/authors", authorController.GetAuthors)
+    r.POST("/authors", authorController.CreateAuthor)
+    r.GET("/authors/:id", authorController.GetAuthor)
+    r.PUT("/authors/:id", authorController.UpdateAuthor)
+    r.DELETE("/authors/:id", authorController.DeleteAuthor)
 }

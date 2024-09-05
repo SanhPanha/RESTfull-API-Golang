@@ -2,56 +2,81 @@ package controllers
 
 import (
     "net/http"
+    "strconv"
     "github.com/gin-gonic/gin"
-    "book-author-api/db"
     "book-author-api/models"
+    "book-author-api/services"
 )
 
-func CreateAuthor(c *gin.Context) {
+type AuthorController struct {
+    AuthorService services.IAuthorService
+}
+
+// Controller methods
+
+func (ctrl *AuthorController) CreateAuthor(c *gin.Context) {
     var author models.Author
     if err := c.ShouldBindJSON(&author); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
-    db.DB.Create(&author)
+    if err := ctrl.AuthorService.Create(&author); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
     c.JSON(http.StatusCreated, author)
 }
 
-func GetAuthors(c *gin.Context) {
-    var authors []models.Author
-    db.DB.Find(&authors)
+func (ctrl *AuthorController) GetAuthors(c *gin.Context) {
+    authors, err := ctrl.AuthorService.GetAll()
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
     c.JSON(http.StatusOK, authors)
 }
 
-func GetAuthor(c *gin.Context) {
-    var author models.Author
-    id := c.Param("id")
-    if err := db.DB.First(&author, id).Error; err != nil {
+func (ctrl *AuthorController) GetAuthor(c *gin.Context) {
+    id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+        return
+    }
+    author, err := ctrl.AuthorService.GetByID(uint(id))
+    if err != nil {
         c.JSON(http.StatusNotFound, gin.H{"error": "Author not found"})
         return
     }
     c.JSON(http.StatusOK, author)
 }
 
-func UpdateAuthor(c *gin.Context) {
-    var author models.Author
-    id := c.Param("id")
-    if err := db.DB.First(&author, id).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Author not found"})
+func (ctrl *AuthorController) UpdateAuthor(c *gin.Context) {
+    id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
         return
     }
+    var author models.Author
     if err := c.ShouldBindJSON(&author); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
-    db.DB.Save(&author)
+    author.ID = uint(id)
+    if err := ctrl.AuthorService.Update(&author); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
     c.JSON(http.StatusOK, author)
 }
 
-func DeleteAuthor(c *gin.Context) {
-    id := c.Param("id")
-    if err := db.DB.Delete(&models.Author{}, id).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Author not found"})
+func (ctrl *AuthorController) DeleteAuthor(c *gin.Context) {
+    id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+        return
+    }
+    if err := ctrl.AuthorService.Delete(uint(id)); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
     c.JSON(http.StatusOK, gin.H{"message": "Author deleted"})

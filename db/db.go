@@ -2,8 +2,8 @@ package db
 
 import (
     "github.com/jinzhu/gorm"
-    _ "github.com/mattn/go-sqlite3"
-    "book-author-api/models"  // Import the models package
+    "book-author-api/models"
+    _ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 var DB *gorm.DB
@@ -12,10 +12,8 @@ func InitDB() {
     var err error
     DB, err = gorm.Open("sqlite3", "test.db")
     if err != nil {
-        panic("failed to connect database")
+        panic("failed to connect to database")
     }
-
-    // Automigrate models from the models package
     DB.AutoMigrate(&models.Book{}, &models.Author{})
 }
 
