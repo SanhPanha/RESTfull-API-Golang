@@ -5,8 +5,6 @@ import (
     "book-author-api/db"
 )
 
-
-
 // Define other methods such as GetAll, GetByID, Update, Delete
 type IBookService interface {
     Create(book *models.Book) error
@@ -24,18 +22,23 @@ func (s *BookService) Create(book *models.Book) error {
 
 func (s *BookService) GetAll() ([]models.Book, error) {
     var books []models.Book
-    err := db.DB.Find(&books).Error
+    err := db.DB.Model(&models.Book{}).Select("books.*, authors.name as author_name").
+        Joins("left join authors on authors.id = books.author_id").Scan(&books).Error
     return books, err
 }
 
+
 func (s *BookService) GetByID(id uint) (*models.Book, error) {
     var book models.Book
-    err := db.DB.First(&book, id).Error
+    err := db.DB.Model(&models.Book{}).Select("books.*, authors.name as author_name").
+        Joins("left join authors on authors.id = books.author_id").
+        Where("books.id = ?", id).First(&book).Error
     if err != nil {
         return nil, err
     }
     return &book, nil
 }
+
 
 func (s *BookService) Update(book *models.Book) error {
     return db.DB.Save(&book).Error

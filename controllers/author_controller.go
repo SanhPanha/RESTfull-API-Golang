@@ -14,6 +14,7 @@ type AuthorController struct {
 
 // Controller methods
 
+// CreateAuthor handles the creation of a new author via HTTP POST request
 func (ctrl *AuthorController) CreateAuthor(c *gin.Context) {
     var author models.Author
     if err := c.ShouldBindJSON(&author); err != nil {

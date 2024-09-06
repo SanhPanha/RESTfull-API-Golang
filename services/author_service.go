@@ -26,14 +26,23 @@ func (s *AuthorService) GetAll() ([]models.Author, error) {
     return authors, err
 }
 
+
+
 func (s *AuthorService) GetByID(id uint) (*models.Author, error) {
     var author models.Author
     err := db.DB.First(&author, id).Error
     if err != nil {
         return nil, err
     }
+
+    // Populate book titles in one go
+    var bookTitles []string
+    db.DB.Model(&models.Book{}).Where("author_id = ?", id).Pluck("title", &bookTitles)
+    author.BookTitles = bookTitles
+
     return &author, nil
 }
+
 
 func (s *AuthorService) Update(author *models.Author) error {
     return db.DB.Save(&author).Error
@@ -42,5 +51,3 @@ func (s *AuthorService) Update(author *models.Author) error {
 func (s *AuthorService) Delete(id uint) error {
     return db.DB.Delete(&models.Author{}, id).Error
 }
-
-// Similarly for BookService
