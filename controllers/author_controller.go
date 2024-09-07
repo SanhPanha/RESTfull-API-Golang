@@ -12,7 +12,6 @@ type AuthorController struct {
     AuthorService services.IAuthorService
 }
 
-// Controller methods
 
 // CreateAuthor handles the creation of a new author via HTTP POST request
 func (ctrl *AuthorController) CreateAuthor(c *gin.Context) {
