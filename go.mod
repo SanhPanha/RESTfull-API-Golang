@@ -1,10 +1,11 @@
 module book-author-api
 
-go 1.23.0
+go 1.23
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/jinzhu/gorm v1.9.16
+	gorm.io/driver/sqlite v1.5.6
+	gorm.io/gorm v1.25.12
 )
 
 require (

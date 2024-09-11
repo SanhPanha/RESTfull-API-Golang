@@ -12,5 +12,5 @@ func main() {
 
     r := gin.Default()
     routes.SetupRoutes(r)
-    r.Run()
+    r.Run(":8080") // You can specify a port, e.g., ":8080"
 }

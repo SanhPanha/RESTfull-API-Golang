@@ -1,30 +1,44 @@
 package routes
 
 import (
-    "github.com/gin-gonic/gin"
-    "book-author-api/controllers"
-    "book-author-api/services"
+	"book-author-api/controllers"
+	"book-author-api/pkg/repositories"
+	"book-author-api/pkg/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 func SetupRoutes(r *gin.Engine) {
-    // Create services
-    bookService := &services.BookService{}
-    authorService := &services.AuthorService{}
+	// Initialize repositories
+	authorRepo := &repositories.AuthorRepository{}
+	bookRepo := &repositories.BookRepository{}
 
-    // Create controllers
-    bookController := &controllers.BookController{BookService: bookService}
-    authorController := &controllers.AuthorController{AuthorService: authorService}
+	// Create services with repositories
+	authorService := services.NewAuthorService(authorRepo)
+	bookService := services.NewBookService(bookRepo)
 
-    // Define routes
-    r.GET("/books", bookController.GetBooks)
-    r.POST("/books", bookController.CreateBook)
-    r.GET("/books/:id", bookController.GetBook)
-    r.PUT("/books/:id", bookController.UpdateBook)
-    r.DELETE("/books/:id", bookController.DeleteBook)
+	// Create controllers
+	authorController := &controllers.AuthorController{AuthorService: authorService}
+	bookController := &controllers.BookController{BookService: bookService}
 
-    r.GET("/authors", authorController.GetAuthors)
-    r.POST("/authors", authorController.CreateAuthor)
-    r.GET("/authors/:id", authorController.GetAuthor)
-    r.PUT("/authors/:id", authorController.UpdateAuthor)
-    r.DELETE("/authors/:id", authorController.DeleteAuthor)
+	// Group book-related routes
+	books := r.Group("/books")
+	{
+		books.GET("/", bookController.GetBooks)
+		books.POST("/", bookController.CreateBook)
+		books.GET("/:id", bookController.GetBook)
+		books.PUT("/:id", bookController.UpdateBook)
+		books.DELETE("/:id", bookController.DeleteBook)
+	}
+
+	// Group author-related routes
+	authors := r.Group("/authors")
+	{
+		authors.GET("/", authorController.GetAuthors)  // Fetch all authors
+		authors.POST("/", authorController.CreateAuthor)
+		authors.GET("/:id", authorController.GetAuthor) // Fetch a specific author by ID
+		authors.PUT("/:id", authorController.UpdateAuthor)
+		authors.DELETE("/:id", authorController.DeleteAuthor)
+    
+	}
 }
