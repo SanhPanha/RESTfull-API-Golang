@@ -31,7 +31,8 @@ RUN mkdir -p /app/db
 COPY --from=build /app/main .
 
 # Copy the SQLite database file from the build context
-COPY db/test.db /app/db/test.db
+COPY db/book_author.db /app/db/book_author.db
+
 
 # Expose the port that the application will run on
 EXPOSE 8080
