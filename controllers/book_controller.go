@@ -13,6 +13,7 @@ type BookController struct {
 	BookService *services.BookService
 }
 
+
 // CreateBook handles the creation of a new book
 func (ctrl *BookController) CreateBook(c *gin.Context) {
     var book models.Book
@@ -21,9 +22,9 @@ func (ctrl *BookController) CreateBook(c *gin.Context) {
         return
     }
 
-    // Ensure AuthorID is set correctly
+    // Make sure AuthorID is set correctly
     if book.AuthorID == 0 {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "AuthorID is required"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "AuthorID cannot be zero"})
         return
     }
 
@@ -32,8 +33,9 @@ func (ctrl *BookController) CreateBook(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusCreated, book)
+    c.JSON(http.StatusOK, book)
 }
+
 
 // GetBooks retrieves all books
 func (ctrl *BookController) GetBooks(c *gin.Context) {

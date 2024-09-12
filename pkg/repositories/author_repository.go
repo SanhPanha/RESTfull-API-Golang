@@ -31,16 +31,25 @@ func (r *AuthorRepository) GetAll() ([]models.Author, error) {
 	return authors, err
 }
 
+// func (r *AuthorRepository) GetByID(id uint) (*models.Author, error) {
+// 	var author models.Author
+// 	err := db.DB.Preload("Books", func(db *gorm.DB) *gorm.DB {
+// 		return db.Select("title")
+// 	}).First(&author, id).Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return &author, nil
+// }
 func (r *AuthorRepository) GetByID(id uint) (*models.Author, error) {
 	var author models.Author
-	err := db.DB.Preload("Books", func(db *gorm.DB) *gorm.DB {
-		return db.Select("title")
-	}).First(&author, id).Error
+	err := db.DB.Preload("Books").First(&author, id).Error
 	if err != nil {
 		return nil, err
 	}
 	return &author, nil
 }
+
 
 func (r *AuthorRepository) Update(author *models.Author) error {
 	return db.DB.Save(author).Error

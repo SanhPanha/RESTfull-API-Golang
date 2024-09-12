@@ -17,30 +17,26 @@ type IBookRepository interface {
 type BookRepository struct{}
 
 func (r *BookRepository) Create(book *models.Book) error {
-	return db.DB.Create(book).Error
+    return db.DB.Create(book).Error
 }
 
+
 func (r *BookRepository) GetAll() ([]models.Book, error) {
-	var books []models.Book
-	err := db.DB.Model(&models.Book{}).
-		Select("books.id, books.title, authors.name as author_name").
-		Joins("left join authors on authors.id = books.author_id").
-		Find(&books).Error
-	return books, err
+    var books []models.Book
+    err := db.DB.Preload("Author").Find(&books).Error
+    return books, err
 }
 
 func (r *BookRepository) GetByID(id uint) (*models.Book, error) {
-	var book models.Book
-	err := db.DB.Model(&models.Book{}).
-		Select("books.id, books.title, authors.name as author_name").
-		Joins("left join authors on authors.id = books.author_id").
-		Where("books.id = ?", id).
-		First(&book).Error
-	if err != nil {
-		return nil, err
-	}
-	return &book, nil
+    var book models.Book
+    err := db.DB.Preload("Author").First(&book, id).Error
+    if err != nil {
+        return nil, err
+    }
+    return &book, nil
 }
+
+
 
 func (r *BookRepository) Update(book *models.Book) error {
 	return db.DB.Save(book).Error

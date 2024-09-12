@@ -1,9 +1,13 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
+// Author model
 type Author struct {
-	gorm.Model
-	Name  string
-	Books []Book `gorm:"foreignKey:AuthorID"` // One-to-many relationship
+    gorm.Model
+    Name       string `json:"name"`
+    Books      []Book `json:"books" gorm:"foreignKey:AuthorID"`
+    BookTitles []string `json:"book_titles" gorm:"-"`
 }
